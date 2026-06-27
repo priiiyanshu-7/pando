@@ -50,7 +50,7 @@ export default function Login() {
               <button key={m.id} onClick={() => signIn(m)} disabled={!!busy}
                 style={{
                   display: "flex", alignItems: "center", gap: 11, padding: "12px 13px", borderRadius: 14,
-                  border: "1.5px solid var(--line)", background: "var(--panel)", textAlign: "left",
+                  border: "1.5px solid var(--line)", background: "var(--panel)", textAlign: "left", minWidth: 0,
                   opacity: busy && !loading ? 0.5 : 1, transition: "border-color .15s, box-shadow .15s",
                 }}
                 onMouseEnter={(e) => { if (!busy) { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.boxShadow = "var(--shadow)"; } }}
