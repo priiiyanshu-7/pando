@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { Menu } from "lucide-react";
 import { StoreProvider, useStore, useApp } from "./store.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import Home from "./components/Home.jsx";
 import Login from "./components/Login.jsx";
+import { BottomNav, MobileProfile } from "./components/BottomNav.jsx";
+import { Logo } from "./components/Primitives.jsx";
 import { computeReadiness, daysUntil } from "./engine/readiness.js";
 import { DESTINATIONS } from "./data/trip.js";
 
@@ -21,7 +21,6 @@ const TITLES = { overview: "Overview", itinerary: "Itinerary", bookings: "Bookin
 
 function Shell() {
   const { state } = useStore();
-  const [navOpen, setNavOpen] = useState(false);
   const dest = DESTINATIONS[state.trip.destinationKey];
   const R = computeReadiness(state);
   const days = daysUntil(state.trip.start);
@@ -31,12 +30,11 @@ function Shell() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
-      <div className={"nav-backdrop" + (navOpen ? " show" : "")} onClick={() => setNavOpen(false)} />
-      <Sidebar open={navOpen} onNavigate={() => setNavOpen(false)} />
+      <Sidebar />
       <main className="app-main" style={{ flex: 1, height: "100vh", overflowY: "auto" }}>
-        <header className="app-header" style={{ padding: "26px 44px 20px", borderBottom: "1px solid var(--line)", background: "var(--paper)", position: "sticky", top: 0, zIndex: 5, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-            <button className="nav-toggle iconbtn" onClick={() => setNavOpen(true)} aria-label="Menu" style={{ width: 36, height: 36 }}><Menu size={20} /></button>
+        <header className="app-header" style={{ padding: "26px 44px 20px", borderBottom: "1px solid var(--line)", background: "var(--paper)", position: "sticky", top: 0, zIndex: 5, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
+            <span className="only-mobile"><Logo size={32} radius={10} /></span>
             <div style={{ minWidth: 0 }}>
               <div className="eyebrow" style={{ marginBottom: 4 }}>{TITLES[state.module]}</div>
               <h1 className="serif" style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-.02em", lineHeight: 1 }}>
@@ -44,15 +42,19 @@ function Shell() {
               </h1>
             </div>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div className="serif tnum" style={{ fontSize: 28, fontWeight: 500, lineHeight: 1 }}>{days}<span style={{ fontSize: 13, color: "var(--muted)", fontFamily: "var(--ui)", fontWeight: 450 }}> days out</span></div>
-            <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 3 }}>{range} · {R.score}% ready</div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 14, flexShrink: 0 }}>
+            <div className="only-desktop" style={{ textAlign: "right" }}>
+              <div className="serif tnum" style={{ fontSize: 28, fontWeight: 500, lineHeight: 1 }}>{days}<span style={{ fontSize: 13, color: "var(--muted)", fontFamily: "var(--ui)", fontWeight: 450 }}> days out</span></div>
+              <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 3 }}>{range} · {R.score}% ready</div>
+            </div>
+            <MobileProfile />
           </div>
         </header>
         <div className="app-content" style={{ padding: "26px 44px 80px", maxWidth: 1040 }}>
           <Active />
         </div>
       </main>
+      <BottomNav />
     </div>
   );
 }

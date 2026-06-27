@@ -22,9 +22,12 @@ export default function Bookings() {
       <Intro
         kicker="Every reservation, one place"
         right={
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <div style={{ textAlign: "right" }}>
+              <div className="serif tnum" style={{ fontSize: 24, fontWeight: 800, lineHeight: 1 }}>{inr(total)}</div>
+              <div style={{ fontSize: 11.5, color: "var(--muted)" }}>booked · {state.bookings.length} reservations</div>
+            </div>
             <button className="btn dark sm" onClick={() => setEditing(BLANK_BOOKING)}><Plus size={14} /> Add reservation</button>
-            <div style={{ textAlign: "right" }}><div className="serif tnum" style={{ fontSize: 22, fontWeight: 500, lineHeight: 1 }}>{inr(total)}</div><div style={{ fontSize: 11.5, color: "var(--muted)" }}>booked · {state.bookings.length} reservations</div></div>
           </div>
         }
       >

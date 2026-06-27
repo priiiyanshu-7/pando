@@ -71,7 +71,8 @@
       "Bash(git branch *)",
       "Bash(gh repo *)",
       "Bash(git commit -q -m 'Login: group accounts sign in on click; add Sign out on Home screen *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git commit -q -m 'Mobile: CRED-style bottom nav + bottom sheets, logo top-left, profile top-right; card login; Checklist after Overview *)"
     ]
   }
 }

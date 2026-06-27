@@ -16,11 +16,11 @@ import { DESTINATIONS } from "../data/trip.js";
 //   Places folded into Itinerary as a layer
 const CORE = [
   ["overview",  "Overview",  LayoutDashboard],
+  ["checklist", "Checklist", CheckSquare],
   ["itinerary", "Itinerary", CalendarDays],
   ["bookings",  "Bookings",  Ticket],
   ["money",     "Money",     Wallet],
   ["documents", "Documents", FileText],
-  ["checklist", "Checklist", CheckSquare],
 ];
 const SECONDARY = [
   ["activity",  "Activity",  Activity],
