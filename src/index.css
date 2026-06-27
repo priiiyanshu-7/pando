@@ -85,7 +85,7 @@ input,select,textarea{ font-family:inherit; }
   .intro > div:last-child > div:first-child{ width:100%; }
   .intro .btn{ flex:1; justify-content:center; }
 }
-@media (max-width:620px){ .grid-2,.grid-3,.ov-grid{ grid-template-columns:1fr !important; } }
+@media (max-width:620px){ .grid-2,.grid-3,.ov-grid{ grid-template-columns:1fr !important; } .hide-sm{ display:none !important; } }
 .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 
 /* floating segmented view switcher (Timeline / Map) — pinned bottom-centre on phones */

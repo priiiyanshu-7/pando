@@ -18,26 +18,29 @@ export default function Login() {
   const seen = new Set();
   app.trips.forEach((t) => t.members.forEach((m) => { if (!seen.has(m.name)) { seen.add(m.name); roster.push(m); } }));
 
-  const submit = async () => {
-    const user = u.trim().toLowerCase();
-    const match = roster.find((m) => { const c = credsFor(m); return c.username === user && c.password === p.trim(); });
-    if (!match) { setErr("Wrong username or password"); return; }
+  // Sign a known member in — used by both the form and a click on a group account.
+  const authMember = async (match) => {
     const c = credsFor(match);
-
     if (!supaEnabled) {
       dispatch({ type: "login", user: { id: match.id, name: match.name, username: c.username } });
       return;
     }
-    // Real auth: sign in, or create the account on first use (the store flips the route).
     setBusy(true); setErr("");
     const email = `${c.username}@pando.app`;
-    let { error } = await supabase.auth.signInWithPassword({ email, password: p.trim() });
+    let { error } = await supabase.auth.signInWithPassword({ email, password: c.password });
     if (error) {
-      const res = await supabase.auth.signUp({ email, password: p.trim(), options: { data: { name: match.name, username: c.username } } });
+      const res = await supabase.auth.signUp({ email, password: c.password, options: { data: { name: match.name, username: c.username } } });
       error = res.error;
     }
     setBusy(false);
     if (error) setErr(error.message);
+  };
+
+  const submit = () => {
+    const user = u.trim().toLowerCase();
+    const match = roster.find((m) => { const c = credsFor(m); return c.username === user && c.password === p.trim(); });
+    if (!match) { setErr("Wrong username or password"); return; }
+    authMember(match);
   };
 
   return (
@@ -68,10 +71,10 @@ export default function Login() {
             {roster.map((m) => {
               const c = credsFor(m);
               return (
-                <button key={m.id} onClick={() => { setU(c.username); setP(c.password); setErr(""); }}
-                  style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "9px 12px", fontSize: 12, borderBottom: "1px solid var(--lineSoft)", textAlign: "left" }}>
+                <button key={m.id} disabled={busy} onClick={() => authMember(m)}
+                  style={{ display: "flex", justifyContent: "space-between", width: "100%", padding: "9px 12px", fontSize: 12, borderBottom: "1px solid var(--lineSoft)", textAlign: "left", opacity: busy ? 0.5 : 1 }}>
                   <span style={{ fontWeight: 600 }}>{m.name}</span>
-                  <span className="tnum" style={{ color: "var(--muted)" }}>{c.username} · {c.password}</span>
+                  <span className="tnum" style={{ color: "var(--muted)" }}>sign in →</span>
                 </button>
               );
             })}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Check, MapPin, ArrowRight } from "lucide-react";
+import { Plus, Check, MapPin, ArrowRight, LogOut } from "lucide-react";
 import { useApp } from "../store.jsx";
 import { Ring, Modal, Field, Logo } from "./Primitives.jsx";
 import { computeReadiness, daysUntil } from "../engine/readiness.js";
@@ -13,10 +13,21 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: "100vh", padding: "clamp(28px, 6vw, 64px)", maxWidth: 1100, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-        <Logo size={40} radius={12} />
-        <span className="serif" style={{ fontSize: 30, fontWeight: 800 }}>Pando</span>
-        <span style={{ fontSize: 13, color: "var(--faint)" }}>every trip is a project</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Logo size={40} radius={12} />
+          <span className="serif" style={{ fontSize: 30, fontWeight: 800 }}>Pando</span>
+          <span style={{ fontSize: 13, color: "var(--faint)" }} className="hide-sm">every trip is a project</span>
+        </div>
+        {app.auth && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--accent-soft)", color: "var(--accent)", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 13 }}>
+              {app.auth.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+            </span>
+            <span style={{ fontSize: 13.5, fontWeight: 600 }} className="hide-sm">{app.auth.name}</span>
+            <button className="btn ghost sm" onClick={() => dispatch({ type: "logout" })}><LogOut size={14} /> Sign out</button>
+          </div>
+        )}
       </div>
       <h1 className="serif" style={{ fontSize: "clamp(34px, 6vw, 52px)", fontWeight: 800, letterSpacing: "-.03em", margin: "10px 0 30px" }}>Your trips</h1>
 
