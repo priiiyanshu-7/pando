@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --paper:#F4F7FC; --panel:#FFFFFF; --ink:#13161D; --muted:#5E6573;
+  --faint:#A3ABBA; --line:#E7ECF3; --lineSoft:#F1F4F9;
+  --accent:#2E8FF5; --accent2:#5BB1FF; --accent-soft:rgba(46,143,245,.10);
+  --grad:linear-gradient(135deg,#45A6FF 0%,#2E8FF5 100%);
+  --ready:#1FA98C; --warn:#E08A2B; --dim:#9C9D9F;
+  --serif:'Plus Jakarta Sans', system-ui, sans-serif;   /* display = bold rounded sans now */
+  --ui:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --shadow:0 2px 10px rgba(20,18,30,.05);
+  --shadow-lg:0 16px 44px rgba(20,18,30,.12);
+}
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-font-smoothing:antialiased; }
+html,body,#root{ height:100%; }
+body{ font-family:var(--ui); background:var(--paper); color:var(--ink); font-size:14px; line-height:1.5; letter-spacing:-.005em; }
+button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+input,select,textarea{ font-family:inherit; }
+.serif{ font-family:var(--serif); letter-spacing:-.02em; }
+.tnum{ font-variant-numeric:tabular-nums; }
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-thumb{ background:var(--line); border-radius:10px; }
+::-webkit-scrollbar-track{ background:transparent; }
+
+.eyebrow{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); font-weight:600; }
+.kicker{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:700; }
+
+.card{ background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:20px; box-shadow:var(--shadow); }
+.card-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
+.card-head h3{ font-size:15px; font-weight:700; }
+.card-head .hint{ font-size:11.5px; color:var(--faint); font-weight:500; }
+
+.row{ display:flex; align-items:center; gap:11px; padding:9px 8px; border-radius:12px; width:100%; text-align:left; }
+.row:hover{ background:var(--lineSoft); }
+.cbox{ width:20px; height:20px; border-radius:7px; flex-shrink:0; display:grid; place-items:center;
+  border:2px solid var(--faint); transition:all .15s; }
+.cbox.on{ background:var(--accent); border-color:var(--accent); }
+.pill{ font-size:11px; padding:3px 10px; border-radius:999px; font-weight:600; white-space:nowrap; }
+.pill.owner{ color:var(--muted); background:var(--lineSoft); }
+.dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+.bar{ height:8px; border-radius:8px; background:var(--lineSoft); overflow:hidden; }
+.bar>i{ display:block; height:100%; border-radius:8px; transition:width .5s cubic-bezier(.4,0,.2,1); }
+
+.btn{ padding:10px 18px; border-radius:999px; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:7px; transition:transform .12s, box-shadow .15s, opacity .15s; }
+.btn:active{ transform:scale(.97); }
+.btn.dark{ background:var(--grad); color:#fff; box-shadow:0 6px 18px rgba(46,143,245,.32); }
+.btn.dark:hover{ box-shadow:0 8px 22px rgba(46,143,245,.42); }
+.btn.ghost{ border:1.5px solid var(--line); background:var(--panel); color:var(--ink); font-weight:600; }
+.btn.ghost:hover{ border-color:var(--faint); }
+.btn.ghost.on{ border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+.btn.sm{ padding:8px 13px; font-size:12.5px; }
+.btn.danger{ color:#E0556B; border:1.5px solid rgba(224,85,107,.28); background:rgba(224,85,107,.06); font-weight:600; }
+
+.iconbtn{ width:30px; height:30px; border-radius:9px; display:grid; place-items:center; color:var(--faint);
+  flex-shrink:0; transition:all .15s; }
+.iconbtn:hover{ background:var(--lineSoft); color:var(--ink); }
+.iconbtn.warn:hover{ background:rgba(224,85,107,.1); color:#E0556B; }
+
+.seg{ display:inline-flex; background:var(--lineSoft); border-radius:999px; padding:4px; gap:2px; }
+.seg button{ padding:7px 15px; border-radius:999px; font-size:12.5px; font-weight:600; color:var(--muted); transition:all .15s; }
+.seg button.on{ background:var(--panel); color:var(--ink); box-shadow:var(--shadow); }
+
+.intro{ margin-bottom:22px; display:flex; align-items:flex-start; justify-content:space-between; gap:24px; }
+.intro p{ font-size:14px; line-height:1.5; max-width:540px; margin-top:6px; color:var(--muted); }
+
+/* ---- app shell + responsive nav ---- */
+.app-main{ background:var(--paper); }
+.sidebar{ width:248px; flex-shrink:0; border-right:1px solid var(--line); background:var(--panel);
+  height:100vh; position:sticky; top:0; overflow-y:auto; padding:20px 14px; z-index:40; }
+.nav-backdrop{ display:none; }
+@media (max-width:860px){
+  .sidebar{ position:fixed; left:0; top:0; width:264px; transform:translateX(-100%);
+    transition:transform .25s cubic-bezier(.4,0,.2,1); box-shadow:var(--shadow-lg); }
+  .sidebar.open{ transform:translateX(0); }
+  .nav-backdrop.show{ display:block; position:fixed; inset:0; background:rgba(21,21,27,.4); z-index:38; }
+  .app-header{ padding:16px 18px 14px !important; }
+  .app-content{ padding:18px 18px 120px !important; }   /* room for floating switcher */
+  .app-header h1{ font-size:26px !important; }
+
+  /* stack heading text above its action buttons instead of squishing side-by-side */
+  .intro{ flex-direction:column; align-items:stretch; gap:14px; }
+  .intro p{ font-size:15px; max-width:none; }
+  .intro > div:last-child{ align-items:stretch !important; }
+  .intro > div:last-child > div:first-child{ width:100%; }
+  .intro .btn{ flex:1; justify-content:center; }
+}
+@media (max-width:620px){ .grid-2,.grid-3,.ov-grid{ grid-template-columns:1fr !important; } }
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+/* floating segmented view switcher (Timeline / Map) — pinned bottom-centre on phones */
+@media (max-width:860px){
+  .viewseg{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:30;
+    background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow-lg); padding:5px; margin:0 !important; }
+  .viewseg button{ padding:9px 22px; }
+}
+
+/* the hamburger — hidden on desktop, shown only under the breakpoint. Defined AFTER
+   .iconbtn so it wins the cascade (this was the bug: iconbtn used to override it). */
+.nav-toggle{ display:none !important; }
+@media (max-width:860px){ .nav-toggle{ display:grid !important; } }
+
+/* ---- forms ---- */
+.fld{ width:100%; padding:11px 13px; border-radius:12px; border:1.5px solid var(--line); background:var(--panel);
+  font-size:13.5px; color:var(--ink); outline:none; transition:border-color .15s, box-shadow .15s; }
+.fld:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+.fld::placeholder{ color:var(--faint); }
+textarea.fld{ resize:vertical; min-height:62px; line-height:1.5; }
+.lbl{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-bottom:6px; display:block; }
+
+/* ---- chips ---- */
+.chip{ display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border-radius:999px; font-size:12.5px;
+  font-weight:600; border:1.5px solid var(--line); background:var(--panel); color:var(--muted); transition:all .15s; }
+.chip:hover{ border-color:var(--faint); }
+.chip.on{ border-color:transparent; color:#fff; }
+
+/* ---- modal ---- */
+.overlay{ position:fixed; inset:0; background:rgba(21,21,27,.45); backdrop-filter:blur(4px); z-index:50;
+  display:grid; place-items:center; padding:24px; animation:fade .15s ease; }
+.modal{ background:var(--panel); border-radius:24px; width:100%; max-width:480px;
+  box-shadow:var(--shadow-lg); max-height:88vh; overflow-y:auto; animation:pop .2s cubic-bezier(.34,1.3,.5,1); }
+.modal-head{ padding:22px 24px 0; display:flex; align-items:flex-start; justify-content:space-between; }
+.modal-body{ padding:18px 24px 24px; display:grid; gap:14px; }
+@keyframes fade{ from{ opacity:0 } }
+@keyframes pop{ from{ opacity:0; transform:translateY(10px) scale(.97) } }
+.spin{ animation:spin 1s linear infinite; }
+@keyframes spin{ to{ transform:rotate(360deg) } }
+
+/* ---- add affordance ---- */
+.add-row{ display:flex; align-items:center; gap:10px; padding:12px 15px; border-radius:14px; width:100%;
+  border:1.5px dashed var(--line); color:var(--muted); font-size:13px; font-weight:600; transition:all .15s; }
+.add-row:hover{ border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+
+/* ---- leaflet ---- */
+.leaflet-popup-content-wrapper{ border-radius:12px; font-family:var(--ui); }
+.leaflet-popup-content{ font-size:12.5px; line-height:1.5; margin:11px 13px; }
+.leaflet-container{ font-family:var(--ui); }
