@@ -1,13 +1,13 @@
 import { useState } from "react";
 import {
-  Plus, Clock, MapPin, Trash2, Check, ArrowRight, Map as MapIcon, List, Loader2, Search,
+  Plus, Clock, MapPin, Trash2, Check, ArrowRight, Map as MapIcon, List,
   Landmark, Utensils, Building2, Mountain, Waves, ShoppingBag, Wine, BedDouble, Car,
   Plane, TrainFront, Bus, Bike, Ship, Footprints,
 } from "lucide-react";
 import { useStore } from "../store.jsx";
 import { Modal, Field } from "../components/Primitives.jsx";
 import TripMap from "../components/TripMap.jsx";
-import { PLACE_CATEGORIES, PLACE_CATEGORY_KEYS, TRANSFER_MODE_KEYS, DESTINATIONS } from "../data/trip.js";
+import { PLACE_CATEGORIES, PLACE_CATEGORY_KEYS, TRANSFER_MODE_KEYS } from "../data/trip.js";
 import { inr } from "../lib/format.js";
 
 const CAT_ICONS = { Landmark, Utensils, Building2, Mountain, Waves, ShoppingBag, Wine, BedDouble, Car };
@@ -82,7 +82,7 @@ export default function Itinerary() {
         </>
       )}
 
-      {editing && <ItemEditor editing={editing} days={state.days} month={MONTH} dest={DESTINATIONS[state.trip.destinationKey]} dispatch={dispatch} onClose={() => setEditing(null)} />}
+      {editing && <ItemEditor editing={editing} days={state.days} month={MONTH} dispatch={dispatch} onClose={() => setEditing(null)} />}
     </div>
   );
 }
@@ -150,26 +150,13 @@ function TransferCard({ p, days, month, onEdit, dispatch }) {
   );
 }
 
-function ItemEditor({ editing, days, month, dest, dispatch, onClose }) {
+function ItemEditor({ editing, days, month, dispatch, onClose }) {
   const [f, setF] = useState({ ...editing });
-  const [geo, setGeo] = useState("");
   const isTransfer = f.type === "transfer";
   // Time only matters for fixed departures — flights and trains.
   const showTime = isTransfer && (f.mode === "Flight" || f.mode === "Train");
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const valid = isTransfer ? (f.from.trim() || f.to.trim()) : f.name.trim().length > 0;
-
-  const geocode = async () => {
-    const q = [f.name, f.area, dest?.label].filter(Boolean).join(", ");
-    if (!q.trim()) { setGeo("Add a name or area first"); return; }
-    setGeo("loading");
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`, { headers: { Accept: "application/json" } });
-      const data = await res.json();
-      if (data[0]) { setF((p) => ({ ...p, lat: Number(data[0].lat), lng: Number(data[0].lon) })); setGeo("found"); }
-      else setGeo("not found — enter coordinates manually");
-    } catch { setGeo("lookup failed — enter coordinates manually"); }
-  };
 
   const save = () => {
     if (!valid) return;
@@ -236,25 +223,10 @@ function ItemEditor({ editing, days, month, dest, dispatch, onClose }) {
       </div>
 
       {!isTransfer && (
-        <>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Area" placeholder="Neighbourhood / city" value={f.area} onChange={set("area")} />
-            <Field label="Cost (₹)" type="number" min="0" value={f.cost} onChange={set("cost")} />
-          </div>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 5 }}>
-              <span className="lbl" style={{ margin: 0 }}>Location on map</span>
-              <button className="btn ghost sm" onClick={geocode} disabled={geo === "loading"}>
-                {geo === "loading" ? <Loader2 size={13} className="spin" /> : <Search size={13} />} Find on map
-              </button>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <input className="fld" type="number" step="0.0001" placeholder="latitude" value={f.lat ?? ""} onChange={(e) => setF({ ...f, lat: e.target.value === "" ? null : Number(e.target.value) })} />
-              <input className="fld" type="number" step="0.0001" placeholder="longitude" value={f.lng ?? ""} onChange={(e) => setF({ ...f, lng: e.target.value === "" ? null : Number(e.target.value) })} />
-            </div>
-            {geo && geo !== "loading" && <div style={{ fontSize: 11.5, color: geo === "found" ? "var(--ready)" : "var(--muted)", marginTop: 5 }}>{geo === "found" ? "✓ pinned on the map" : geo}</div>}
-          </div>
-        </>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <Field label="Area" placeholder="Neighbourhood / city" value={f.area} onChange={set("area")} />
+          <Field label="Cost (₹)" type="number" min="0" value={f.cost} onChange={set("cost")} />
+        </div>
       )}
       {isTransfer && <Field label="Cost (₹)" type="number" min="0" value={f.cost} onChange={set("cost")} />}
 
