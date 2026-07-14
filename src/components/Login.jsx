@@ -33,7 +33,7 @@ export default function Login() {
 
   return (
     <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, background: "var(--grad)" }}>
-      <div className="card" style={{ width: "100%", maxWidth: 440, padding: 28 }}>
+      <div className="card" style={{ width: "100%", maxWidth: 600, padding: 30 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 22 }}>
           <Logo size={56} radius={16} />
           <div style={{ textAlign: "center" }}>

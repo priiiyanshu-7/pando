@@ -75,7 +75,8 @@
       "Bash(git commit -q -m 'Mobile: CRED-style bottom nav + bottom sheets, logo top-left, profile top-right; card login; Checklist after Overview *)",
       "Bash(git commit -q -m 'Login: stop long-name cards overflowing their grid cell \\(min-width:0\\) *)",
       "Bash(git commit -q -m 'Itinerary: show time only on fixed flights/trains, not places or ad-hoc transfers *)",
-      "Bash(git commit -q -m 'Itinerary: drop the Location-on-map / Find-on-map fields from the place editor *)"
+      "Bash(git commit -q -m 'Itinerary: drop the Location-on-map / Find-on-map fields from the place editor *)",
+      "Bash(git commit -q -m 'Login: widen card so traveller names don'\\\\''t truncate *)"
     ]
   }
 }
