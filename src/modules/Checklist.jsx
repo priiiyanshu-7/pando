@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Plus, Check, Trash2, Pencil } from "lucide-react";
-import { useStore } from "../store.jsx";
+import { useStore, useIsAdmin } from "../store.jsx";
 import { Intro, Ring, Modal, Field } from "../components/Primitives.jsx";
 import { computeReadiness } from "../engine/readiness.js";
 import { nameOf } from "../lib/format.js";
 
 export default function Checklist() {
   const { state, dispatch } = useStore();
+  const isAdmin = useIsAdmin();
   const [val, setVal] = useState("");
   const [section, setSection] = useState("Before you go");
   const [editing, setEditing] = useState(null);
@@ -53,7 +54,7 @@ export default function Checklist() {
                   {t.essential && <span style={{ fontSize: 10, color: "var(--accent)", fontWeight: 600, letterSpacing: ".05em", textTransform: "uppercase" }}>essential</span>}
                   <button className="pill owner" onClick={() => setEditing(t)}>{nameOf(state, t.owner)}</button>
                   <button className="iconbtn warn" onClick={() => setEditing(t)} title="Edit" style={{ width: 24, height: 24 }}><Pencil size={12} /></button>
-                  <button className="iconbtn warn" onClick={() => dispatch({ type: "remove", coll: "checklist", id: t.id })} title="Delete" style={{ width: 24, height: 24 }}><Trash2 size={13} /></button>
+                  {isAdmin && <button className="iconbtn warn" onClick={() => dispatch({ type: "remove", coll: "checklist", id: t.id })} title="Delete" style={{ width: 24, height: 24 }}><Trash2 size={13} /></button>}
                 </div>
               ))}
             </div>
@@ -67,6 +68,7 @@ export default function Checklist() {
 }
 
 function TaskEditor({ editing, members, group, sections, dispatch, onClose }) {
+  const isAdmin = useIsAdmin();
   const [f, setF] = useState({ ...editing });
   const valid = f.label.trim().length > 0;
   const save = () => {
@@ -77,7 +79,7 @@ function TaskEditor({ editing, members, group, sections, dispatch, onClose }) {
   return (
     <Modal title="Edit task" onClose={onClose}
       footer={<>
-        <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "checklist", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>
+        {isAdmin && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "checklist", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
         <button className="btn ghost sm" onClick={onClose}>Cancel</button>
         <button className="btn dark sm" onClick={save} disabled={!valid} style={{ opacity: valid ? 1 : 0.5 }}><Check size={14} /> Save</button>
       </>}>

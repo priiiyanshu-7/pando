@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Check, Plus, Trash2 } from "lucide-react";
-import { useStore } from "../store.jsx";
+import { useStore, useIsAdmin } from "../store.jsx";
 import { Intro, Modal, Field } from "../components/Primitives.jsx";
 
 const TYPES = ["Passport", "Visa", "Insurance", "Arrival card", "Health form", "Ticket", "Booking", "File"];
 
 export default function Documents() {
   const { state, dispatch } = useStore();
+  const isAdmin = useIsAdmin();
   const [editing, setEditing] = useState(null);
   return (
     <div>
@@ -26,7 +27,7 @@ export default function Documents() {
               <div style={{ fontSize: 13.5, fontWeight: 500, marginTop: 1 }}>{d.label}</div>
             </button>
             {d.essential && !d.uploaded && <span style={{ fontSize: 10, color: "var(--warn)", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".05em" }}>needed</span>}
-            <button className="iconbtn warn" onClick={() => dispatch({ type: "remove", coll: "docs", id: d.id })}><Trash2 size={13} /></button>
+            {isAdmin && <button className="iconbtn warn" onClick={() => dispatch({ type: "remove", coll: "docs", id: d.id })}><Trash2 size={13} /></button>}
           </div>
         ))}
       </div>
@@ -36,6 +37,7 @@ export default function Documents() {
 }
 
 function DocEditor({ editing, dispatch, onClose }) {
+  const isAdmin = useIsAdmin();
   const [f, setF] = useState({ ...editing });
   const valid = f.label.trim().length > 0;
   const save = () => {
@@ -48,7 +50,7 @@ function DocEditor({ editing, dispatch, onClose }) {
   return (
     <Modal title={editing._new ? "Add document" : "Edit document"} onClose={onClose}
       footer={<>
-        {!editing._new && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "docs", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
+        {!editing._new && isAdmin && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "docs", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
         <button className="btn ghost sm" onClick={onClose}>Cancel</button>
         <button className="btn dark sm" onClick={save} disabled={!valid} style={{ opacity: valid ? 1 : 0.5 }}><Check size={14} /> Save</button>
       </>}>

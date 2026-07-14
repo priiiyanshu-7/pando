@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { ArrowRight, Plus, Trash2, Check, Handshake, Receipt } from "lucide-react";
-import { useStore } from "../store.jsx";
+import { useStore, useIsAdmin } from "../store.jsx";
 import { Intro, Modal, Field } from "../components/Primitives.jsx";
 import { inr, settlement, shareFor, nameOf } from "../lib/format.js";
 
 export default function Money() {
   const { state, dispatch } = useStore();
+  const isAdmin = useIsAdmin();
   const [editExp, setEditExp] = useState(null);
   const [editPay, setEditPay] = useState(null);
   const members = state.members;
@@ -72,7 +73,7 @@ export default function Money() {
               <b style={{ color: "var(--ink)", fontWeight: 700 }}>{nameOf(state, p.from)}</b> paid <b style={{ color: "var(--ink)", fontWeight: 700 }}>{nameOf(state, p.to)}</b>{p.note && ` · ${p.note}`}
             </span>
             <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: "var(--ready)" }}>{inr(p.amount)}</span>
-            <button className="iconbtn warn" onClick={(ev) => { ev.stopPropagation(); dispatch({ type: "remove", coll: "payments", id: p.id }); }}><Trash2 size={12} /></button>
+            {isAdmin && <button className="iconbtn warn" onClick={(ev) => { ev.stopPropagation(); dispatch({ type: "remove", coll: "payments", id: p.id }); }}><Trash2 size={12} /></button>}
           </div>
         ))}
       </div>
@@ -92,7 +93,7 @@ export default function Money() {
                 </div>
               </div>
               <span className="tnum" style={{ fontSize: 14, fontWeight: 700 }}>{inr(e.amount)}</span>
-              <button className="iconbtn warn" onClick={(ev) => { ev.stopPropagation(); dispatch({ type: "remove", coll: "expenses", id: e.id }); }}><Trash2 size={13} /></button>
+              {isAdmin && <button className="iconbtn warn" onClick={(ev) => { ev.stopPropagation(); dispatch({ type: "remove", coll: "expenses", id: e.id }); }}><Trash2 size={13} /></button>}
             </div>
           );
         })}
@@ -107,6 +108,7 @@ export default function Money() {
 }
 
 function ExpenseEditor({ editing, members, dispatch, onClose }) {
+  const isAdmin = useIsAdmin();
   const [f, setF] = useState({ ...editing, amounts: { ...(editing.amounts || {}) }, split: editing.split || members.map((m) => m.id) });
   const amount = Number(f.amount) || 0;
   const involved = f.split;
@@ -132,7 +134,7 @@ function ExpenseEditor({ editing, members, dispatch, onClose }) {
   return (
     <Modal title={editing._new ? "Add expense" : "Edit expense"} onClose={onClose}
       footer={<>
-        {!editing._new && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "expenses", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
+        {!editing._new && isAdmin && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "expenses", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
         <button className="btn ghost sm" onClick={onClose}>Cancel</button>
         <button className="btn dark sm" onClick={save} disabled={!valid} style={{ opacity: valid ? 1 : 0.5 }}><Check size={14} /> Save</button>
       </>}>
@@ -190,6 +192,7 @@ function ExpenseEditor({ editing, members, dispatch, onClose }) {
 }
 
 function PaymentEditor({ editing, members, dispatch, onClose }) {
+  const isAdmin = useIsAdmin();
   const [f, setF] = useState({ ...editing });
   const valid = f.from && f.to && f.from !== f.to && Number(f.amount) > 0;
   const save = () => {
@@ -202,7 +205,7 @@ function PaymentEditor({ editing, members, dispatch, onClose }) {
   return (
     <Modal title={editing._new ? "Record a payment" : "Edit payment"} onClose={onClose}
       footer={<>
-        {!editing._new && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "payments", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
+        {!editing._new && isAdmin && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "payments", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
         <button className="btn ghost sm" onClick={onClose}>Cancel</button>
         <button className="btn dark sm" onClick={save} disabled={!valid} style={{ opacity: valid ? 1 : 0.5 }}><Check size={14} /> Save</button>
       </>}>

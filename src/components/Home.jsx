@@ -3,7 +3,7 @@ import { Plus, Check, MapPin, ArrowRight, LogOut } from "lucide-react";
 import { useApp } from "../store.jsx";
 import { Ring, Modal, Field, Logo } from "./Primitives.jsx";
 import { computeReadiness, daysUntil } from "../engine/readiness.js";
-import { DESTINATIONS } from "../data/trip.js";
+import { DESTINATIONS, resolveDest, destFromInput } from "../data/trip.js";
 
 const fmt = (d) => { const x = new Date(d); return Number.isNaN(+x) ? "" : x.toLocaleDateString("en-GB", { day: "numeric", month: "short" }); };
 
@@ -33,7 +33,7 @@ export default function Home() {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 18 }}>
         {app.trips.map((t) => {
-          const dest = DESTINATIONS[t.trip.destinationKey] || {};
+          const dest = resolveDest(t.trip);
           const R = computeReadiness(t);
           const out = daysUntil(t.trip.start);
           return (
@@ -75,12 +75,13 @@ export default function Home() {
 }
 
 function NewTrip({ dispatch, onClose }) {
-  const [f, setF] = useState({ name: "", destinationKey: "goa", cities: "", start: "", end: "" });
+  const [f, setF] = useState({ name: "", destination: "", cities: "", start: "", end: "" });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
-  const valid = f.name.trim() && f.start && f.end && new Date(f.end) >= new Date(f.start);
+  const valid = f.name.trim() && f.destination.trim() && f.start && f.end && new Date(f.end) >= new Date(f.start);
   const create = () => {
     if (!valid) return;
-    dispatch({ type: "newTrip", trip: { ...f, name: f.name.trim() } });
+    const { destinationKey, destinationName } = destFromInput(f.destination);
+    dispatch({ type: "newTrip", trip: { name: f.name.trim(), destinationKey, destinationName, cities: f.cities, start: f.start, end: f.end } });
     onClose();
   };
   return (
@@ -91,9 +92,13 @@ function NewTrip({ dispatch, onClose }) {
       </>}>
       <Field label="Trip name" placeholder="e.g. Goa with the crew" value={f.name} onChange={set("name")} autoFocus />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <Field as="select" label="Destination" value={f.destinationKey} onChange={set("destinationKey")}>
-          {Object.entries(DESTINATIONS).map(([k, d]) => <option key={k} value={k}>{d.flag} {d.label}</option>)}
-        </Field>
+        <label style={{ display: "block" }}>
+          <span className="lbl">Destination</span>
+          <input className="fld" list="dest-suggest" placeholder="Type any place — e.g. Thailand" value={f.destination} onChange={set("destination")} />
+          <datalist id="dest-suggest">
+            {Object.values(DESTINATIONS).map((d) => <option key={d.label} value={d.label} />)}
+          </datalist>
+        </label>
         <Field label="Cities (· separated)" placeholder="Panaji · Anjuna" value={f.cities} onChange={set("cities")} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>

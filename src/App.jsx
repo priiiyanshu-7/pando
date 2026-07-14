@@ -5,7 +5,7 @@ import Login from "./components/Login.jsx";
 import { BottomNav, MobileProfile } from "./components/BottomNav.jsx";
 import { Logo } from "./components/Primitives.jsx";
 import { computeReadiness, daysUntil } from "./engine/readiness.js";
-import { DESTINATIONS } from "./data/trip.js";
+import { resolveDest } from "./data/trip.js";
 
 import Overview from "./modules/Overview.jsx";
 import Itinerary from "./modules/Itinerary.jsx";
@@ -21,7 +21,7 @@ const TITLES = { overview: "Overview", itinerary: "Itinerary", bookings: "Bookin
 
 function Shell() {
   const { state } = useStore();
-  const dest = DESTINATIONS[state.trip.destinationKey];
+  const dest = resolveDest(state.trip);
   const R = computeReadiness(state);
   const days = daysUntil(state.trip.start);
   const Active = MODULES[state.module] || Overview;

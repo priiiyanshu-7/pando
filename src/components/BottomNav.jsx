@@ -4,7 +4,7 @@ import {
   Ticket, FileText, Activity, Users, Settings, Compass, LogOut, Check,
 } from "lucide-react";
 import { useStore, useApp } from "../store.jsx";
-import { DESTINATIONS } from "../data/trip.js";
+import { resolveDest } from "../data/trip.js";
 
 // 4 primary tabs in the bar; everything else lives in the "More" sheet.
 const TABS = [
@@ -74,7 +74,7 @@ export function MobileProfile() {
         <Sheet onClose={() => setOpen(false)} title={app.auth.name}>
           <div style={{ fontSize: 11.5, color: "var(--faint)", padding: "0 12px 8px" }}>Switch trip</div>
           {app.trips.map((t) => {
-            const d = DESTINATIONS[t.trip.destinationKey] || {};
+            const d = resolveDest(t.trip);
             const active = t.id === app.activeId && app.route === "trip";
             return (
               <button key={t.id} className={"sheet-item" + (active ? " on" : "")} onClick={() => { dispatch({ type: "openTrip", id: t.id }); setOpen(false); }}>

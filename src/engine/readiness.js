@@ -1,4 +1,4 @@
-import { DESTINATIONS, BOOKED } from "../data/trip.js";
+import { resolveDest, BOOKED } from "../data/trip.js";
 
 export function daysUntil(dateStr) {
   return Math.max(0, Math.round((new Date(dateStr) - new Date()) / 86400000));
@@ -11,7 +11,7 @@ export function daysUntil(dateStr) {
  */
 export function computeReadiness(state) {
   const { trip, checklist, bookings, docs } = state;
-  const rule = DESTINATIONS[trip.destinationKey];
+  const rule = resolveDest(trip);
 
   const doc = (t) => docs.find((d) => d.type === t);
   const passport = doc("Passport");

@@ -7,7 +7,7 @@ import {
 import { useStore, useApp } from "../store.jsx";
 import { Ring, Logo } from "./Primitives.jsx";
 import { computeReadiness } from "../engine/readiness.js";
-import { DESTINATIONS } from "../data/trip.js";
+import { resolveDest } from "../data/trip.js";
 
 // Six core modules — collapsed from the original fourteen.
 //   Money  = Budget + Expenses
@@ -33,7 +33,7 @@ export default function Sidebar({ open = false, onNavigate }) {
   const { app } = useApp();
   const [pick, setPick] = useState(false);
   const R = computeReadiness(state);
-  const dest = DESTINATIONS[state.trip.destinationKey];
+  const dest = resolveDest(state.trip);
   const go = (key) => { dispatch({ type: "module", value: key }); onNavigate?.(); };
 
   const Item = ([key, label, Icon]) => (
@@ -78,7 +78,7 @@ export default function Sidebar({ open = false, onNavigate }) {
         {pick && (
           <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 25, background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 12, boxShadow: "var(--shadow-lg)", padding: 5 }}>
             {app.trips.map((t) => {
-              const d = DESTINATIONS[t.trip.destinationKey] || {};
+              const d = resolveDest(t.trip);
               const active = t.id === app.activeId && app.route === "trip";
               return (
                 <button key={t.id} onClick={() => { dispatch({ type: "openTrip", id: t.id }); setPick(false); onNavigate?.(); }}

@@ -4,7 +4,7 @@ import {
   Landmark, Utensils, Building2, Mountain, Waves, ShoppingBag, Wine, BedDouble, Car,
   Plane, TrainFront, Bus, Bike, Ship, Footprints,
 } from "lucide-react";
-import { useStore } from "../store.jsx";
+import { useStore, useIsAdmin } from "../store.jsx";
 import { Modal, Field } from "../components/Primitives.jsx";
 import TripMap from "../components/TripMap.jsx";
 import { PLACE_CATEGORIES, PLACE_CATEGORY_KEYS, TRANSFER_MODE_KEYS } from "../data/trip.js";
@@ -94,13 +94,14 @@ function Item({ p, compact, days, month, onEdit, dispatch }) {
 }
 
 function MoveControls({ p, days, month, dispatch }) {
+  const isAdmin = useIsAdmin();
   return (
     <div style={{ display: "flex", gap: 2, flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
       <select value={p.dayD ?? ""} onChange={(e) => dispatch({ type: "movePlace", id: p.id, dayD: e.target.value === "" ? null : Number(e.target.value) })}
         title="Move to day" style={{ fontSize: 11, border: "1px solid var(--line)", borderRadius: 7, background: "var(--panel)", color: "var(--muted)", padding: "3px 4px", cursor: "pointer", maxWidth: 64 }}>
         {days.map((d) => <option key={d.d} value={d.d}>{d.d} {month}</option>)}
       </select>
-      <button className="iconbtn warn" title="Remove" onClick={() => dispatch({ type: "remove", coll: "places", id: p.id })}><Trash2 size={14} /></button>
+      {isAdmin && <button className="iconbtn warn" title="Remove" onClick={() => dispatch({ type: "remove", coll: "places", id: p.id })}><Trash2 size={14} /></button>}
     </div>
   );
 }
@@ -140,7 +141,7 @@ function TransferCard({ p, days, month, onEdit, dispatch }) {
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px", fontSize: 11.5, color: "var(--muted)", marginTop: 1 }}>
           <span style={{ fontWeight: 600 }}>{p.mode}</span>
-          {p.time && (p.mode === "Flight" || p.mode === "Train") && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Clock size={11} />{p.time}</span>}
+          {p.time && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Clock size={11} />{p.time}</span>}
           {Number(p.cost) > 0 && <span className="tnum">{inr(p.cost)}</span>}
           {p.notes && <span style={{ color: "var(--faint)" }}>{p.notes}</span>}
         </div>
@@ -151,10 +152,11 @@ function TransferCard({ p, days, month, onEdit, dispatch }) {
 }
 
 function ItemEditor({ editing, days, month, dispatch, onClose }) {
+  const isAdmin = useIsAdmin();
   const [f, setF] = useState({ ...editing });
   const isTransfer = f.type === "transfer";
-  // Time only matters for fixed departures — flights and trains.
-  const showTime = isTransfer && (f.mode === "Flight" || f.mode === "Train");
+  // Transfers have a departure time; open-ended places don't.
+  const showTime = isTransfer;
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const valid = isTransfer ? (f.from.trim() || f.to.trim()) : f.name.trim().length > 0;
 
@@ -172,7 +174,7 @@ function ItemEditor({ editing, days, month, dispatch, onClose }) {
   return (
     <Modal title={editing._new ? (isTransfer ? "New transfer" : "New place") : (isTransfer ? "Edit transfer" : "Edit place")} onClose={onClose}
       footer={<>
-        {!editing._new && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "places", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
+        {!editing._new && isAdmin && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "places", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
         <button className="btn ghost sm" onClick={onClose}>Cancel</button>
         <button className="btn dark sm" onClick={save} disabled={!valid} style={{ opacity: valid ? 1 : 0.5 }}><Check size={14} /> Save</button>
       </>}>

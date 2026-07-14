@@ -1,10 +1,10 @@
-import { DESTINATIONS } from "../data/trip.js";
+import { resolveDest } from "../data/trip.js";
 
 export const inr = (n) => "₹" + Number(Math.round(n)).toLocaleString("en-IN");
 
 export function localCurrency(state, rupees) {
-  const rule = DESTINATIONS[state.trip.destinationKey];
-  if (rule.currency === "INR") return null;
+  const rule = resolveDest(state.trip);
+  if (!rule.currency || rule.currency === "INR") return null;
   const v = rupees * rule.fx;
   return `${Math.round(v).toLocaleString()} ${rule.currency}`;
 }

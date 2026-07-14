@@ -8,6 +8,11 @@ const KEY = "pando.app.v7";
 
 const uid = (p) => p + Math.random().toString(36).slice(2, 8);
 
+// Only the admin may delete/remove things.
+const ADMIN_NAME = "Priyanshu Gupta";
+const isAdminUser = (auth) => auth?.name === ADMIN_NAME;
+const DESTRUCTIVE = new Set(["remove", "deleteTrip"]);
+
 // Hydrate the local cache (all trip folders + which one is open + who's logged in).
 function load() {
   const fresh = { auth: null, route: "home", activeId: "trip1", trips: [{ ...initialState, id: "trip1" }] };
@@ -56,6 +61,8 @@ function tripReducer(s, a) {
 
 // Workspace reducer — routing + folders + auth, delegating everything else to the active trip.
 function appReducer(s, a) {
+  // Guard: destructive actions are admin-only, whatever the UI shows.
+  if (DESTRUCTIVE.has(a.type) && !isAdminUser(s.auth)) return s;
   switch (a.type) {
     case "openTrip": return { ...s, route: "trip", activeId: a.id, trips: s.trips.map((t) => (t.id === a.id ? { ...t, module: "overview" } : t)) };
     case "home":     return { ...s, route: "home" };
@@ -155,3 +162,4 @@ export function StoreProvider({ children }) {
 
 export const useStore = () => useContext(StoreContext);
 export const useApp = () => useContext(AppContext);
+export const useIsAdmin = () => isAdminUser(useContext(AppContext)?.app?.auth);

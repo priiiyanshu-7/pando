@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Plus, Trash2, Check } from "lucide-react";
-import { useStore } from "../store.jsx";
+import { useStore, useIsAdmin } from "../store.jsx";
 import { Intro, Modal, Field } from "../components/Primitives.jsx";
 import { settlement, inr, credsFor } from "../lib/format.js";
-import { DESTINATIONS } from "../data/trip.js";
+import { DESTINATIONS, resolveDest, destFromInput } from "../data/trip.js";
 
 const initials = (name) => name.trim().split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 
 export function Members() {
   const { state, dispatch } = useStore();
+  const isAdmin = useIsAdmin();
   const [editing, setEditing] = useState(null);
   const set = settlement(state);
   return (
@@ -30,7 +31,7 @@ export function Members() {
               <span className="tnum" style={{ fontSize: 13, fontWeight: 600, color: bal > 1 ? "var(--ready)" : bal < -1 ? "var(--warn)" : "var(--muted)" }}>
                 {bal > 1 ? `is owed ${inr(bal)}` : bal < -1 ? `owes ${inr(-bal)}` : "settled"}
               </span>
-              {!m.you && <button className="iconbtn warn" title="Remove" onClick={() => dispatch({ type: "remove", coll: "members", id: m.id })}><Trash2 size={14} /></button>}
+              {!m.you && isAdmin && <button className="iconbtn warn" title="Remove" onClick={() => dispatch({ type: "remove", coll: "members", id: m.id })}><Trash2 size={14} /></button>}
             </div>
           );
         })}
@@ -64,6 +65,7 @@ function MemberEditor({ editing, dispatch, onClose }) {
 
 export function Settings() {
   const { state, dispatch } = useStore();
+  const isAdmin = useIsAdmin();
   const t = state.trip;
   const patch = (fields) => dispatch({ type: "editTrip", fields });
 
@@ -80,9 +82,14 @@ export function Settings() {
       <div className="card" style={{ display: "grid", gap: 16, marginBottom: 18 }}>
         <Field label="Trip name" value={t.name} onChange={(e) => patch({ name: e.target.value })} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-          <Field as="select" label="Destination" value={t.destinationKey} onChange={(e) => patch({ destinationKey: e.target.value })}>
-            {Object.entries(DESTINATIONS).map(([k, d]) => <option key={k} value={k}>{d.flag} {d.label}</option>)}
-          </Field>
+          <label style={{ display: "block" }}>
+            <span className="lbl">Destination</span>
+            <input className="fld" list="dest-suggest-settings" value={t.destinationName || resolveDest(t).label}
+              onChange={(e) => patch(destFromInput(e.target.value))} />
+            <datalist id="dest-suggest-settings">
+              {Object.values(DESTINATIONS).map((d) => <option key={d.label} value={d.label} />)}
+            </datalist>
+          </label>
           <Field label="Cities (· separated)" value={t.cities} onChange={(e) => patch({ cities: e.target.value })} />
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
@@ -102,9 +109,11 @@ export function Settings() {
         ))}
       </div>
 
-      <button className="btn danger sm" onClick={() => { if (confirm(`Delete “${t.name}”? This can't be undone.`)) dispatch({ type: "deleteTrip", id: state.id }); }}>
-        <Trash2 size={14} /> Delete this trip
-      </button>
+      {isAdmin && (
+        <button className="btn danger sm" onClick={() => { if (confirm(`Delete “${t.name}”? This can't be undone.`)) dispatch({ type: "deleteTrip", id: state.id }); }}>
+          <Trash2 size={14} /> Delete this trip
+        </button>
+      )}
     </div>
   );
 }

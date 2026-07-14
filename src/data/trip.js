@@ -1,11 +1,56 @@
 // Destination intelligence — this is what makes Readiness destination-aware.
 // In production this comes from a maintained dataset; here, a representative slice.
 export const DESTINATIONS = {
-  vietnam: { label: "Vietnam", flag: "🇻🇳", international: true,  visaRequired: true,  currency: "VND", fx: 305 /* ₹1 ≈ 305 VND */ },
-  japan:   { label: "Japan",   flag: "🇯🇵", international: true,  visaRequired: false, currency: "JPY", fx: 1.8 },
-  goa:     { label: "Goa",     flag: "🏖️", international: false, visaRequired: false, currency: "INR", fx: 1 },
-  udaipur: { label: "Udaipur", flag: "🏰", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  // International (fx = local currency units per ₹1, approximate)
+  vietnam:    { label: "Vietnam",     flag: "🇻🇳", international: true,  visaRequired: true,  currency: "VND", fx: 305 },
+  thailand:   { label: "Thailand",    flag: "🇹🇭", international: true,  visaRequired: false, currency: "THB", fx: 0.42 },
+  indonesia:  { label: "Bali / Indonesia", flag: "🇮🇩", international: true, visaRequired: false, currency: "IDR", fx: 195 },
+  singapore:  { label: "Singapore",   flag: "🇸🇬", international: true,  visaRequired: true,  currency: "SGD", fx: 0.016 },
+  malaysia:   { label: "Malaysia",    flag: "🇲🇾", international: true,  visaRequired: false, currency: "MYR", fx: 0.053 },
+  uae:        { label: "Dubai / UAE", flag: "🇦🇪", international: true,  visaRequired: true,  currency: "AED", fx: 0.044 },
+  srilanka:   { label: "Sri Lanka",   flag: "🇱🇰", international: true,  visaRequired: true,  currency: "LKR", fx: 3.6 },
+  nepal:      { label: "Nepal",       flag: "🇳🇵", international: true,  visaRequired: false, currency: "NPR", fx: 1.6 },
+  bhutan:     { label: "Bhutan",      flag: "🇧🇹", international: true,  visaRequired: false, currency: "BTN", fx: 1 },
+  maldives:   { label: "Maldives",    flag: "🇲🇻", international: true,  visaRequired: false, currency: "MVR", fx: 0.185 },
+  japan:      { label: "Japan",       flag: "🇯🇵", international: true,  visaRequired: true,  currency: "JPY", fx: 1.8 },
+  philippines:{ label: "Philippines", flag: "🇵🇭", international: true,  visaRequired: true,  currency: "PHP", fx: 0.68 },
+  cambodia:   { label: "Cambodia",    flag: "🇰🇭", international: true,  visaRequired: true,  currency: "USD", fx: 0.012 },
+  turkey:     { label: "Turkey",      flag: "🇹🇷", international: true,  visaRequired: true,  currency: "TRY", fx: 0.4 },
+  georgia:    { label: "Georgia",     flag: "🇬🇪", international: true,  visaRequired: false, currency: "GEL", fx: 0.032 },
+  uk:         { label: "United Kingdom", flag: "🇬🇧", international: true, visaRequired: true, currency: "GBP", fx: 0.0094 },
+  europe:     { label: "Europe (Schengen)", flag: "🇪🇺", international: true, visaRequired: true, currency: "EUR", fx: 0.011 },
+  usa:        { label: "USA",         flag: "🇺🇸", international: true,  visaRequired: true,  currency: "USD", fx: 0.012 },
+  australia:  { label: "Australia",   flag: "🇦🇺", international: true,  visaRequired: true,  currency: "AUD", fx: 0.018 },
+  // Domestic (India)
+  goa:        { label: "Goa",         flag: "🏖️", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  udaipur:    { label: "Udaipur",     flag: "🏰", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  manali:     { label: "Manali",      flag: "🏔️", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  ladakh:     { label: "Ladakh",      flag: "🏍️", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  kerala:     { label: "Kerala",      flag: "🌴", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  rishikesh:  { label: "Rishikesh",   flag: "🧘", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  kashmir:    { label: "Kashmir",     flag: "⛰️", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  andaman:    { label: "Andaman",     flag: "🏝️", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  jaipur:     { label: "Jaipur",      flag: "🕌", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  sikkim:     { label: "Sikkim",      flag: "🏞️", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  spiti:      { label: "Spiti",       flag: "🛞", international: false, visaRequired: false, currency: "INR", fx: 1 },
+  meghalaya:  { label: "Meghalaya",   flag: "🌧️", international: false, visaRequired: false, currency: "INR", fx: 1 },
 };
+
+// Resolve a trip's destination — a known entry, or a graceful fallback for a custom one.
+export function resolveDest(trip) {
+  return DESTINATIONS[trip.destinationKey] || {
+    label: trip.destinationName || trip.name || "Trip",
+    flag: "🌍", international: false, visaRequired: false, currency: "", fx: 1,
+  };
+}
+
+// Turn free-typed text into { destinationKey, destinationName }. Matches a known
+// destination by label (case-insensitive), else keeps it as a custom destination.
+export function destFromInput(text) {
+  const t = (text || "").trim();
+  const key = Object.keys(DESTINATIONS).find((k) => DESTINATIONS[k].label.toLowerCase() === t.toLowerCase());
+  return { destinationKey: key || "custom", destinationName: t };
+}
 
 // The real trip — Vietnam with the boys, 7–16 Oct 2026 (out of BLR via a KL layover).
 export const initialState = {
@@ -175,7 +220,7 @@ export const STATUS_CYCLE = ["Planned", "Booked", "Paid", "Completed", "Cancelle
 const DAY_PALETTE = ["#6C5CE7", "#1FA98C", "#E08A2B", "#C9543D", "#2E6F8E", "#A03D5E", "#4A6B5A", "#8E5A2E"];
 
 // Build a fresh, empty trip folder from a few basics. Days are generated from the dates.
-export function makeTrip({ name, destinationKey = "goa", cities = "", start, end }) {
+export function makeTrip({ name, destinationKey = "custom", destinationName = "", cities = "", start, end }) {
   const s = new Date(start), e = new Date(end);
   const nights = Math.max(1, Math.round((e - s) / 86400000) || 1);
   const days = [];
@@ -185,7 +230,7 @@ export function makeTrip({ name, destinationKey = "goa", cities = "", start, end
   }
   return {
     mode: "group", module: "overview",
-    trip: { name: name || "New trip", destinationKey, cities, start, end, nights, planningWindowDays: 30, homeCurrency: "₹" },
+    trip: { name: name || "New trip", destinationKey, destinationName, cities, start, end, nights, planningWindowDays: 30, homeCurrency: "₹" },
     members: [{ id: "u1", name: "You", initials: "Y", you: true }],
     docs: [], bookings: [], checklist: [], extras: [], expenses: [], payments: [], places: [], days,
     activity: [], ui: { moneyTab: "actual", showWhy: false },

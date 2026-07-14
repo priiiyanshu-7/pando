@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plane, Hotel, Car, Compass, Plus, Trash2, Check } from "lucide-react";
-import { useStore } from "../store.jsx";
+import { useStore, useIsAdmin } from "../store.jsx";
 import { Intro, Modal, Field } from "../components/Primitives.jsx";
 import { inr } from "../lib/format.js";
 import { STATUS_CYCLE, BOOKED } from "../data/trip.js";
@@ -13,6 +13,7 @@ const BLANK_BOOKING = { _new: true, type: "Hotel", title: "", date: "", cost: 0,
 
 export default function Bookings() {
   const { state, dispatch } = useStore();
+  const isAdmin = useIsAdmin();
   const [editing, setEditing] = useState(null);
   // Only confirmed bookings have a real cost — planned prices stay dynamic until booked.
   const total = state.bookings.filter((b) => BOOKED.includes(b.status)).reduce((s, b) => s + (Number(b.cost) || 0), 0);
@@ -51,7 +52,7 @@ export default function Bookings() {
                 style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 11px", minWidth: 96, justifyContent: "center", fontWeight: 600, fontSize: 12, border: `1px solid ${sColor(b.status)}33`, background: `${sColor(b.status)}12`, color: sColor(b.status) }}>
                 <span className="dot" style={{ background: sColor(b.status) }} />{b.status}
               </button>
-              <button className="iconbtn warn" title="Remove" onClick={() => dispatch({ type: "remove", coll: "bookings", id: b.id })}><Trash2 size={14} /></button>
+              {isAdmin && <button className="iconbtn warn" title="Remove" onClick={() => dispatch({ type: "remove", coll: "bookings", id: b.id })}><Trash2 size={14} /></button>}
             </div>
           );
         })}
@@ -63,6 +64,7 @@ export default function Bookings() {
 }
 
 function BookingEditor({ editing, dispatch, onClose }) {
+  const isAdmin = useIsAdmin();
   const [f, setF] = useState({ ...editing });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const valid = f.title.trim().length > 0;
@@ -85,7 +87,7 @@ function BookingEditor({ editing, dispatch, onClose }) {
       onClose={onClose}
       footer={
         <>
-          {!editing._new && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "bookings", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
+          {!editing._new && isAdmin && <button className="btn danger sm" style={{ marginRight: "auto" }} onClick={() => { dispatch({ type: "remove", coll: "bookings", id: editing.id }); onClose(); }}><Trash2 size={14} /> Delete</button>}
           <button className="btn ghost sm" onClick={onClose}>Cancel</button>
           <button className="btn dark sm" onClick={save} disabled={!valid} style={{ opacity: valid ? 1 : 0.5 }}><Check size={14} /> Save</button>
         </>
