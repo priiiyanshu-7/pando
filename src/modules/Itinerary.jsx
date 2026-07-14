@@ -118,7 +118,6 @@ function PlaceCard({ p, compact, days, month, onEdit, dispatch }) {
           <span style={{ fontSize: 13.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</span>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px", fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>
-          {p.time && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Clock size={11} />{p.time}</span>}
           {p.area && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><MapPin size={11} />{p.area}</span>}
           <span style={{ color: tone, fontWeight: 600 }}>{p.category}</span>
           {Number(p.cost) > 0 && <span className="tnum">{inr(p.cost)}</span>}
@@ -141,7 +140,7 @@ function TransferCard({ p, days, month, onEdit, dispatch }) {
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px", fontSize: 11.5, color: "var(--muted)", marginTop: 1 }}>
           <span style={{ fontWeight: 600 }}>{p.mode}</span>
-          {p.time && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Clock size={11} />{p.time}</span>}
+          {p.time && (p.mode === "Flight" || p.mode === "Train") && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Clock size={11} />{p.time}</span>}
           {Number(p.cost) > 0 && <span className="tnum">{inr(p.cost)}</span>}
           {p.notes && <span style={{ color: "var(--faint)" }}>{p.notes}</span>}
         </div>
@@ -155,6 +154,8 @@ function ItemEditor({ editing, days, month, dest, dispatch, onClose }) {
   const [f, setF] = useState({ ...editing });
   const [geo, setGeo] = useState("");
   const isTransfer = f.type === "transfer";
+  // Time only matters for fixed departures — flights and trains.
+  const showTime = isTransfer && (f.mode === "Flight" || f.mode === "Train");
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const valid = isTransfer ? (f.from.trim() || f.to.trim()) : f.name.trim().length > 0;
 
@@ -227,11 +228,11 @@ function ItemEditor({ editing, days, month, dest, dispatch, onClose }) {
         </>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: showTime ? "1fr 1fr" : "1fr", gap: 12 }}>
         <Field as="select" label="Day" value={f.dayD ?? ""} onChange={set("dayD")}>
           {days.map((d) => <option key={d.d} value={d.d}>{d.d} {month} · {d.label}</option>)}
         </Field>
-        <Field label="Time" type="time" value={f.time} onChange={set("time")} />
+        {showTime && <Field label="Departure time" type="time" value={f.time} onChange={set("time")} />}
       </div>
 
       {!isTransfer && (
