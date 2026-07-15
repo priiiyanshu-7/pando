@@ -9,7 +9,16 @@ const TYPES = ["Flight", "Hotel", "Transit", "Activity"];
 const bIcon = (t) => (t === "Flight" ? Plane : t === "Hotel" ? Hotel : t === "Transit" ? Car : Compass);
 const sColor = (s) => (s === "Cancelled" ? "var(--dim)" : s === "Planned" ? "var(--warn)" : "var(--ready)");
 
-const BLANK_BOOKING = { _new: true, type: "Hotel", title: "", date: "", cost: 0, status: "Planned", nights: 1, essential: false };
+// Render text with clickable links (URLs open in a new tab; click doesn't open the editor).
+function linkify(text) {
+  return String(text).split(/(https?:\/\/[^\s]+)/g).map((part, i) =>
+    /^https?:\/\//.test(part)
+      ? <a key={i} href={part} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: "var(--accent)", fontWeight: 600, textDecoration: "underline" }}>{part.replace(/^https?:\/\/(www\.)?/, "").slice(0, 40)}{part.length > 48 ? "…" : ""}</a>
+      : <span key={i}>{part}</span>
+  );
+}
+
+const BLANK_BOOKING = { _new: true, type: "Hotel", title: "", date: "", cost: 0, status: "Planned", nights: 1, essential: false, notes: "" };
 
 export default function Bookings() {
   const { state, dispatch } = useStore();
@@ -39,20 +48,27 @@ export default function Bookings() {
         {state.bookings.map((b, i) => {
           const Icon = bIcon(b.type);
           return (
-            <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", borderBottom: i < state.bookings.length - 1 ? "1px solid var(--lineSoft)" : "none" }}>
-              <span style={{ width: 34, height: 34, borderRadius: 9, background: "var(--lineSoft)", display: "grid", placeItems: "center", color: "var(--muted)", flexShrink: 0 }}><Icon size={16} /></span>
-              <button onClick={() => setEditing(b)} style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>{b.title}</div>
-                <div style={{ fontSize: 12, color: "var(--muted)" }}>{b.type} · {b.date}{b.essential && " · essential"}</div>
-              </button>
-              <div className="tnum" style={{ fontSize: 13.5, color: BOOKED.includes(b.status) ? "var(--muted)" : "var(--faint)", marginRight: 4, minWidth: 52, textAlign: "right" }}>
-                {BOOKED.includes(b.status) ? inr(b.cost) : "TBC"}
+            <div key={b.id} style={{ padding: "13px 18px", borderBottom: i < state.bookings.length - 1 ? "1px solid var(--lineSoft)" : "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <span style={{ width: 34, height: 34, borderRadius: 9, background: "var(--lineSoft)", display: "grid", placeItems: "center", color: "var(--muted)", flexShrink: 0 }}><Icon size={16} /></span>
+                <button onClick={() => setEditing(b)} style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>{b.title}</div>
+                  <div style={{ fontSize: 12, color: "var(--muted)" }}>{b.type} · {b.date}{b.essential && " · essential"}</div>
+                </button>
+                <div className="tnum" style={{ fontSize: 13.5, color: BOOKED.includes(b.status) ? "var(--muted)" : "var(--faint)", marginRight: 4, minWidth: 52, textAlign: "right" }}>
+                  {BOOKED.includes(b.status) ? inr(b.cost) : "TBC"}
+                </div>
+                <button onClick={() => dispatch({ type: "cycleBooking", id: b.id })} className="pill"
+                  style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 11px", minWidth: 96, justifyContent: "center", fontWeight: 600, fontSize: 12, border: `1px solid ${sColor(b.status)}33`, background: `${sColor(b.status)}12`, color: sColor(b.status) }}>
+                  <span className="dot" style={{ background: sColor(b.status) }} />{b.status}
+                </button>
+                {isAdmin && <button className="iconbtn warn" title="Remove" onClick={() => dispatch({ type: "remove", coll: "bookings", id: b.id })}><Trash2 size={14} /></button>}
               </div>
-              <button onClick={() => dispatch({ type: "cycleBooking", id: b.id })} className="pill"
-                style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 11px", minWidth: 96, justifyContent: "center", fontWeight: 600, fontSize: 12, border: `1px solid ${sColor(b.status)}33`, background: `${sColor(b.status)}12`, color: sColor(b.status) }}>
-                <span className="dot" style={{ background: sColor(b.status) }} />{b.status}
-              </button>
-              {isAdmin && <button className="iconbtn warn" title="Remove" onClick={() => dispatch({ type: "remove", coll: "bookings", id: b.id })}><Trash2 size={14} /></button>}
+              {b.notes && (
+                <div style={{ marginTop: 8, marginLeft: 48, fontSize: 12.5, color: "var(--muted)", whiteSpace: "pre-wrap", lineHeight: 1.5, wordBreak: "break-word" }}>
+                  {linkify(b.notes)}
+                </div>
+              )}
             </div>
           );
         })}
@@ -75,6 +91,7 @@ function BookingEditor({ editing, dispatch, onClose }) {
       type: f.type, title: f.title.trim(), date: f.date.trim(), cost: Number(f.cost) || 0,
       status: f.status, nights: Number(f.nights) || 0, essential: !!f.essential,
       outbound: f.type === "Flight" && !!f.essential ? f.outbound : f.outbound,
+      notes: (f.notes || "").trim(),
     };
     if (editing._new) dispatch({ type: "add", coll: "bookings", item: fields });
     else dispatch({ type: "patch", coll: "bookings", id: editing.id, fields });
@@ -107,6 +124,8 @@ function BookingEditor({ editing, dispatch, onClose }) {
         <Field label="Cost (₹)" type="number" min="0" value={f.cost} onChange={set("cost")} />
         {f.type === "Hotel" ? <Field label="Nights" type="number" min="0" value={f.nights} onChange={set("nights")} /> : <div />}
       </div>
+      <Field as="textarea" label="Notes & options" value={f.notes || ""} onChange={set("notes")}
+        placeholder={"Options, links to book, which stay/flight…\ne.g. https://booking.com/… — ₹1,200/night"} style={{ minHeight: 90 }} />
       <div style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
         <Toggle label="Essential (counts toward Readiness)" checked={!!f.essential} onChange={(v) => setF({ ...f, essential: v })} />
         {f.type === "Flight" && <Toggle label="Outbound leg" checked={!!f.outbound} onChange={(v) => setF({ ...f, outbound: v })} />}
