@@ -78,7 +78,8 @@
       "Bash(git commit -q -m 'Itinerary: drop the Location-on-map / Find-on-map fields from the place editor *)",
       "Bash(git commit -q -m 'Login: widen card so traveller names don'\\\\''t truncate *)",
       "Bash(git commit -q -m 'Add any destination \\(free-type + 30 presets\\); admin-only delete \\(Priyanshu Gupta\\); transfers keep time; new-trip/settings destination free text *)",
-      "Bash(git commit -q -m 'Bookings: add notes/options field with clickable links \\(which stay/flight to book\\) *)"
+      "Bash(git commit -q -m 'Bookings: add notes/options field with clickable links \\(which stay/flight to book\\) *)",
+      "Bash(git commit -q -m 'Itinerary: add horizontal Columns view \\(one day per column, scroll sideways\\) *)"
     ]
   }
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  Plus, Clock, MapPin, Trash2, Check, ArrowRight, Map as MapIcon, List,
+  Plus, Clock, MapPin, Trash2, Check, ArrowRight, Map as MapIcon, List, LayoutGrid,
   Landmark, Utensils, Building2, Mountain, Waves, ShoppingBag, Wine, BedDouble, Car,
   Plane, TrainFront, Bus, Bike, Ship, Footprints,
 } from "lucide-react";
@@ -38,6 +38,7 @@ export default function Itinerary() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
         <div className="seg viewseg">
           <button className={view === "timeline" ? "on" : ""} onClick={() => setView("timeline")}><List size={14} style={{ verticalAlign: "middle", marginRight: 5 }} />Timeline</button>
+          <button className={view === "columns" ? "on" : ""} onClick={() => setView("columns")}><LayoutGrid size={14} style={{ verticalAlign: "middle", marginRight: 5 }} />Columns</button>
           <button className={view === "map" ? "on" : ""} onClick={() => setView("map")}><MapIcon size={14} style={{ verticalAlign: "middle", marginRight: 5 }} />Map</button>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -49,6 +50,35 @@ export default function Itinerary() {
 
       {view === "map" ? (
         <TripMap places={places} days={state.days} />
+      ) : view === "columns" ? (
+        /* HORIZONTAL — one column per day, scroll sideways */
+        <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 14, WebkitOverflowScrolling: "touch" }}>
+          {state.days.map((day) => {
+            const items = scheduled.filter((p) => p.dayD === day.d).sort(byTime);
+            return (
+              <div key={day.d} className="card" style={{ flex: "0 0 290px", width: 290, padding: 0, overflow: "hidden", alignSelf: "flex-start", display: "flex", flexDirection: "column" }}>
+                <div style={{ height: 4, background: day.tone }} />
+                <div style={{ padding: "13px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 9 }}>
+                    <div className="serif tnum" style={{ fontSize: 20, fontWeight: 700, lineHeight: 1, color: day.tone }}>{day.d}<span style={{ fontSize: 11, color: "var(--faint)", fontWeight: 400 }}> {MONTH}</span></div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{day.label}</div>
+                      <div style={{ fontSize: 11, color: "var(--muted)" }}>{day.city}</div>
+                    </div>
+                    <button className="iconbtn warn" title="Add a transfer" onClick={() => openTransfer(day.d)} style={{ width: 26, height: 26 }}><Car size={14} /></button>
+                    <button className="iconbtn warn" title="Add a place" onClick={() => openPlace(day.d)} style={{ width: 26, height: 26 }}><Plus size={15} /></button>
+                  </div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {items.map((p) => <Item key={p.id} p={p} days={state.days} month={MONTH} onEdit={() => setEditing(p)} dispatch={dispatch} />)}
+                    {items.length === 0 && (
+                      <button onClick={() => openPlace(day.d)} className="serif" style={{ textAlign: "left", fontSize: 12, color: "var(--faint)", fontStyle: "italic", padding: "2px 0" }}>Nothing planned.</button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
         <>
           {/* DAY-BY-DAY */}
