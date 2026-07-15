@@ -80,7 +80,8 @@
       "Bash(git commit -q -m 'Add any destination \\(free-type + 30 presets\\); admin-only delete \\(Priyanshu Gupta\\); transfers keep time; new-trip/settings destination free text *)",
       "Bash(git commit -q -m 'Bookings: add notes/options field with clickable links \\(which stay/flight to book\\) *)",
       "Bash(git commit -q -m 'Itinerary: add horizontal Columns view \\(one day per column, scroll sideways\\) *)",
-      "Bash(git commit -q -m 'Itinerary Columns: constrain card track so cards fill the column instead of overflowing/clipping *)"
+      "Bash(git commit -q -m 'Itinerary Columns: constrain card track so cards fill the column instead of overflowing/clipping *)",
+      "Bash(git commit -q -m 'Columns view: hide redundant day picker, let place names wrap fully \\(no clipping\\) *)"
     ]
   }
 }

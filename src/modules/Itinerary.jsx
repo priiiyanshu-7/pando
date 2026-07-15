@@ -69,7 +69,7 @@ export default function Itinerary() {
                     <button className="iconbtn warn" title="Add a place" onClick={() => openPlace(day.d)} style={{ width: 26, height: 26 }}><Plus size={15} /></button>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 8 }}>
-                    {items.map((p) => <Item key={p.id} p={p} days={state.days} month={MONTH} onEdit={() => setEditing(p)} dispatch={dispatch} />)}
+                    {items.map((p) => <Item key={p.id} p={p} days={state.days} month={MONTH} col onEdit={() => setEditing(p)} dispatch={dispatch} />)}
                     {items.length === 0 && (
                       <button onClick={() => openPlace(day.d)} className="serif" style={{ textAlign: "left", fontSize: 12, color: "var(--faint)", fontStyle: "italic", padding: "2px 0" }}>Nothing planned.</button>
                     )}
@@ -117,26 +117,29 @@ export default function Itinerary() {
   );
 }
 
-function Item({ p, compact, days, month, onEdit, dispatch }) {
+function Item({ p, compact, days, month, col, onEdit, dispatch }) {
   return p.type === "transfer"
-    ? <TransferCard p={p} days={days} month={month} onEdit={onEdit} dispatch={dispatch} />
-    : <PlaceCard p={p} compact={compact} days={days} month={month} onEdit={onEdit} dispatch={dispatch} />;
+    ? <TransferCard p={p} days={days} month={month} col={col} onEdit={onEdit} dispatch={dispatch} />
+    : <PlaceCard p={p} compact={compact} days={days} month={month} col={col} onEdit={onEdit} dispatch={dispatch} />;
 }
 
-function MoveControls({ p, days, month, dispatch }) {
+function MoveControls({ p, days, month, col, dispatch }) {
   const isAdmin = useIsAdmin();
   return (
     <div style={{ display: "flex", gap: 2, flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
-      <select value={p.dayD ?? ""} onChange={(e) => dispatch({ type: "movePlace", id: p.id, dayD: e.target.value === "" ? null : Number(e.target.value) })}
-        title="Move to day" style={{ fontSize: 11, border: "1px solid var(--line)", borderRadius: 7, background: "var(--panel)", color: "var(--muted)", padding: "3px 4px", cursor: "pointer", maxWidth: 64 }}>
-        {days.map((d) => <option key={d.d} value={d.d}>{d.d} {month}</option>)}
-      </select>
+      {/* the day picker is redundant in Columns view (the column IS the day) */}
+      {!col && (
+        <select value={p.dayD ?? ""} onChange={(e) => dispatch({ type: "movePlace", id: p.id, dayD: e.target.value === "" ? null : Number(e.target.value) })}
+          title="Move to day" style={{ fontSize: 11, border: "1px solid var(--line)", borderRadius: 7, background: "var(--panel)", color: "var(--muted)", padding: "3px 4px", cursor: "pointer", maxWidth: 64 }}>
+          {days.map((d) => <option key={d.d} value={d.d}>{d.d} {month}</option>)}
+        </select>
+      )}
       {isAdmin && <button className="iconbtn warn" title="Remove" onClick={() => dispatch({ type: "remove", coll: "places", id: p.id })}><Trash2 size={14} /></button>}
     </div>
   );
 }
 
-function PlaceCard({ p, compact, days, month, onEdit, dispatch }) {
+function PlaceCard({ p, compact, days, month, col, onEdit, dispatch }) {
   const Icon = catIcon(p.category);
   const tone = catTone(p.category);
   return (
@@ -146,7 +149,7 @@ function PlaceCard({ p, compact, days, month, onEdit, dispatch }) {
       <span style={{ width: 32, height: 32, borderRadius: 9, display: "grid", placeItems: "center", flexShrink: 0, background: tone + "18", color: tone }}><Icon size={16} /></span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-          <span style={{ fontSize: 13.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</span>
+          <span style={{ fontSize: 13.5, fontWeight: 600, ...(col ? {} : { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }) }}>{p.name}</span>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px", fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>
           {p.area && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><MapPin size={11} />{p.area}</span>}
@@ -155,12 +158,12 @@ function PlaceCard({ p, compact, days, month, onEdit, dispatch }) {
         </div>
         {p.notes && !compact && <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 4, lineHeight: 1.4 }}>{p.notes}</div>}
       </div>
-      <MoveControls p={p} days={days} month={month} dispatch={dispatch} />
+      <MoveControls p={p} days={days} month={month} col={col} dispatch={dispatch} />
     </div>
   );
 }
 
-function TransferCard({ p, days, month, onEdit, dispatch }) {
+function TransferCard({ p, days, month, col, onEdit, dispatch }) {
   const Icon = modeIcon(p.mode);
   return (
     <div onClick={onEdit} style={{ display: "flex", gap: 11, padding: "9px 12px", borderRadius: 11, cursor: "pointer", border: "1px dashed var(--line)", background: "var(--paper)", alignItems: "center", minWidth: 0 }}>
@@ -176,7 +179,7 @@ function TransferCard({ p, days, month, onEdit, dispatch }) {
           {p.notes && <span style={{ color: "var(--faint)" }}>{p.notes}</span>}
         </div>
       </div>
-      <MoveControls p={p} days={days} month={month} dispatch={dispatch} />
+      <MoveControls p={p} days={days} month={month} col={col} dispatch={dispatch} />
     </div>
   );
 }
