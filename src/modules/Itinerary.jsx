@@ -68,7 +68,7 @@ export default function Itinerary() {
                     <button className="iconbtn warn" title="Add a transfer" onClick={() => openTransfer(day.d)} style={{ width: 26, height: 26 }}><Car size={14} /></button>
                     <button className="iconbtn warn" title="Add a place" onClick={() => openPlace(day.d)} style={{ width: 26, height: 26 }}><Plus size={15} /></button>
                   </div>
-                  <div style={{ display: "grid", gap: 8 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 8 }}>
                     {items.map((p) => <Item key={p.id} p={p} days={state.days} month={MONTH} onEdit={() => setEditing(p)} dispatch={dispatch} />)}
                     {items.length === 0 && (
                       <button onClick={() => openPlace(day.d)} className="serif" style={{ textAlign: "left", fontSize: 12, color: "var(--faint)", fontStyle: "italic", padding: "2px 0" }}>Nothing planned.</button>
@@ -140,7 +140,7 @@ function PlaceCard({ p, compact, days, month, onEdit, dispatch }) {
   const Icon = catIcon(p.category);
   const tone = catTone(p.category);
   return (
-    <div onClick={onEdit} style={{ display: "flex", gap: 11, padding: "10px 12px", borderRadius: 11, cursor: "pointer", border: "1px solid var(--line)", background: "var(--panel)", alignItems: "flex-start", width: compact ? 248 : "auto", transition: "border-color .15s, box-shadow .15s" }}
+    <div onClick={onEdit} style={{ display: "flex", gap: 11, padding: "10px 12px", borderRadius: 11, cursor: "pointer", border: "1px solid var(--line)", background: "var(--panel)", alignItems: "flex-start", width: compact ? 248 : "auto", minWidth: 0, transition: "border-color .15s, box-shadow .15s" }}
       onMouseEnter={(e) => { e.currentTarget.style.borderColor = tone + "66"; e.currentTarget.style.boxShadow = "var(--shadow)"; }}
       onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--line)"; e.currentTarget.style.boxShadow = "none"; }}>
       <span style={{ width: 32, height: 32, borderRadius: 9, display: "grid", placeItems: "center", flexShrink: 0, background: tone + "18", color: tone }}><Icon size={16} /></span>
@@ -163,7 +163,7 @@ function PlaceCard({ p, compact, days, month, onEdit, dispatch }) {
 function TransferCard({ p, days, month, onEdit, dispatch }) {
   const Icon = modeIcon(p.mode);
   return (
-    <div onClick={onEdit} style={{ display: "flex", gap: 11, padding: "9px 12px", borderRadius: 11, cursor: "pointer", border: "1px dashed var(--line)", background: "var(--paper)", alignItems: "center" }}>
+    <div onClick={onEdit} style={{ display: "flex", gap: 11, padding: "9px 12px", borderRadius: 11, cursor: "pointer", border: "1px dashed var(--line)", background: "var(--paper)", alignItems: "center", minWidth: 0 }}>
       <span style={{ width: 30, height: 30, borderRadius: 9, display: "grid", placeItems: "center", flexShrink: 0, background: "var(--lineSoft)", color: "var(--muted)" }}><Icon size={15} /></span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, fontWeight: 500, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
