@@ -81,7 +81,8 @@
       "Bash(git commit -q -m 'Bookings: add notes/options field with clickable links \\(which stay/flight to book\\) *)",
       "Bash(git commit -q -m 'Itinerary: add horizontal Columns view \\(one day per column, scroll sideways\\) *)",
       "Bash(git commit -q -m 'Itinerary Columns: constrain card track so cards fill the column instead of overflowing/clipping *)",
-      "Bash(git commit -q -m 'Columns view: hide redundant day picker, let place names wrap fully \\(no clipping\\) *)"
+      "Bash(git commit -q -m 'Columns view: hide redundant day picker, let place names wrap fully \\(no clipping\\) *)",
+      "Bash(git commit -q -m 'Itinerary: full-width Columns + Map \\(uncap itinerary\\); keep Timeline/toolbar at readable 1040 *)"
     ]
   }
 }

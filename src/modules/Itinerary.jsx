@@ -35,7 +35,7 @@ export default function Itinerary() {
   return (
     <div>
       {/* one compact toolbar: view switch on the left, actions on the right */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18, flexWrap: "wrap", maxWidth: 1040 }}>
         <div className="seg viewseg">
           <button className={view === "timeline" ? "on" : ""} onClick={() => setView("timeline")}><List size={14} style={{ verticalAlign: "middle", marginRight: 5 }} />Timeline</button>
           <button className={view === "columns" ? "on" : ""} onClick={() => setView("columns")}><LayoutGrid size={14} style={{ verticalAlign: "middle", marginRight: 5 }} />Columns</button>
@@ -82,7 +82,7 @@ export default function Itinerary() {
       ) : (
         <>
           {/* DAY-BY-DAY */}
-          <div style={{ display: "grid", gap: 14 }}>
+          <div style={{ display: "grid", gap: 14, maxWidth: 1040 }}>
             {state.days.map((day) => {
               const items = scheduled.filter((p) => p.dayD === day.d).sort(byTime);
               return (

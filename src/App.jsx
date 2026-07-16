@@ -50,7 +50,7 @@ function Shell() {
             <MobileProfile />
           </div>
         </header>
-        <div className="app-content" style={{ padding: "26px 44px 80px", maxWidth: 1040 }}>
+        <div className="app-content" style={{ padding: "26px 44px 80px", maxWidth: state.module === "itinerary" ? "none" : 1040 }}>
           <Active />
         </div>
       </main>
